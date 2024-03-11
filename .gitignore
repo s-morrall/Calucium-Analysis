@@ -1,3 +1,4 @@
 # Ignore all generated run folders
 
 rep*_data_analysis/
+picker_outputs_rep*/
