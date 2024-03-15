@@ -12,7 +12,7 @@ class Format:
         self.path = path
 
     
-    def tidy_sheet(self, sheet, baseline, delta = False, average = False):
+    def tidy_sheet(self, sheet, baseline, delta = False, average = False, errors = False):
         """
         This is a function to take in one sheet of data as formated and make it tidy.
         :param boolean delta: A boolean to signift is using Delta. 
@@ -55,39 +55,54 @@ class Format:
 
         temp_dfs = []
         
+        removed = 0 
         # For each cell in our list of cells, we shall find the starting absorbance, then normalize based on the time series data for that cell.
         for cell in cells:  
 
-            # Set the starting absorbance value to be later used for normalization.
-            start_au = sheet[cell].iloc[0]
-       
             
+       
             # This normalizes based on the first numaric value in the time series data for that cell.
             i = 0
             if baseline == False:
+                # Set the starting absorbance value to be later used for normalization.
+                start_au = sheet[cell].iloc[0]
+
                 while start_au == 0:
                     print(f"Normalization issue for {treatment} {cell} because first value is zero {sheet[cell].iloc[i]}")
                     i += 1
                     start_au = sheet[cell].iloc[i]
-       
+                
+                normalized = sheet[cell] / start_au
             else:
                 start_au = sheet[sheet["Time (sec)"] <= baseline][cell].mean().round(3)
-         
-                if start_au == 0:
-                    i = baseline - 5
-                    while start_au == 0:
-                        i += 5
-                        start_au = sheet[sheet["Time (sec)"] <= (i)][cell].mean().round(3)
-                        #start_au = np.mean(sheet[sheet["Time (sec)"] <= i][cell])
-                  
-                    print(f"""Normalization issue for {treatment} {cell} because values in first {baseline} seconds are zero. 
-                          Time frame was expanded to {i} seconds.""")        
 
+                if start_au == 0:
+                   
+                    if errors == False:
+                        continue
+
+                    else:
+                               
+                        i = baseline - 5
+                        while start_au == 0:
+                            i += 5
+                            start_au = sheet[sheet["Time (sec)"] <= (i)][cell].mean().round(3)
+                            #DIV/0!
+
+                        print(f"""Normalization issue for {treatment} {cell} because values in first {baseline} seconds are zero. 
+                            Time frame would need to be expanded to {i} seconds. Values will be replaced with #DIV/0!""")  
+            
+                        normalized = "DIV/0!"
+                       
+                else:
+                    normalized = sheet[cell] / start_au        
+
+                
             # Create a dictionary containing all of the relevant data needed for a single cell.
             temp_df = pd.DataFrame({'Time (sec)': sheet["Time (sec)"], 
                         "[hr]:[min]:[sec]": sheet["[hr]:[min]:[sec]"],
                         'A.U.': sheet[cell], 
-                        "Normalized A.U.": sheet[cell] / start_au,
+                        "Normalized A.U.":normalized,
                         'Cell #': cell, 
                         'Treatment': treatment})
             
@@ -108,7 +123,7 @@ class Format:
 
         return df
 
-    def tidy_file(self, delta = True, average = True, baseline = 15):
+    def tidy_file(self, delta = True, average = True, baseline = 15, errors = False):
         """
         This is a function to take in an entire excelt file and tidy it. 
         :param boolean delta: A boolean to signift is using Delta. 
@@ -125,7 +140,7 @@ class Format:
 
 
             #tidiee one sheet for each loop through
-            temp_df = self.tidy_sheet(sheet, baseline, delta, average)
+            temp_df = self.tidy_sheet(sheet, baseline, delta, average, errors)
 
             temp_dfs.append(temp_df)
 
