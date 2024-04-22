@@ -1,0 +1,25 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Calcium Imaging Analysis Software
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Stephanie
+    family-names: Morrall
+    email: s.e.morrall@outlook.com
+    affiliation: Colorado School of Mines
+  - given-names: Chelsea
+    family-names: Johansen
+    email: cmgarcia@mines.edu
+    affiliation: Colorado School of Mines
+  - given-names: Nikki
+    family-names: Farnsworth
+    email: nfarnsworth@mines.edu
+    name-particle: Dr.
+    affiliation: Colorado School of Mines
+repository-code: 'https://github.com/s-morrall/Calucium-Analysis'
+date-released: '2024-04-22'
